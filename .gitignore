@@ -55,6 +55,8 @@ docker-compose.override.yml
 # Project-specific data
 # Cache and runtime data should not be committed
 data/cache/
+data/docs/**
+!data/docs/.gitkeep
 
 # Qdrant local data/collections
 data/qdrant/collections/
@@ -73,12 +75,6 @@ data/ollama/id_ed25519.pub
 *.tmp
 *.temp
 *.bak
-
-# Keep docs and placeholders but do not commit docs
-!data/docs/
-!data/docs/**
-!.gitkeep
-data/docs/
 
 # Node (if present for tooling)
 node_modules/
