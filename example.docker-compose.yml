@@ -1,6 +1,6 @@
 services:
   app:
-    build: .
+    image: mymyhoney/greg2-app:latest
     container_name: rag_app
     ports:
       - "8501:8501"

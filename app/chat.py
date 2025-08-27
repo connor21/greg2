@@ -2,7 +2,7 @@ import json
 from typing import Iterable, List, Dict
 import requests
 
-from app.src.config import AppConfig
+from config import AppConfig
 
 
 def _build_system_prompt() -> str:

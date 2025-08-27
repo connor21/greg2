@@ -3,18 +3,32 @@ import uuid
 import time
 from pathlib import Path
 from typing import List, Dict
+import sys
+
+# Ensure this directory (app/) is on sys.path so local module imports work
+_FILE_DIR = Path(__file__).resolve().parent
+if str(_FILE_DIR) not in sys.path:
+    sys.path.insert(0, str(_FILE_DIR))
 
 import streamlit as st
 from dotenv import load_dotenv
 
-from app.src.config import AppConfig
-from app.src.parsers import parse_document
-from app.src.chunker import chunk_text
-from app.src.embeddings import get_embedder
-from app.src.vectorstore import VectorIndex
-from app.src.retrieval import retrieve_with_rerank
-from app.src.chat import chat_stream
-from app.src.utils import list_documents, save_uploaded_file, delete_document_and_vectors, healthcheck_services, ensure_dirs
+from config import AppConfig
+from parsers import parse_document
+from chunker import chunk_text
+from embeddings import get_embedder
+from vectorstore import VectorIndex
+from retrieval import retrieve_with_rerank
+from chat import chat_stream
+from utils import (
+    list_documents,
+    save_uploaded_file,
+    delete_document_and_vectors,
+    healthcheck_services,
+    ensure_dirs,
+    list_ollama_models,
+    has_ollama_model,
+)
 
 
 def init_state():
@@ -64,6 +78,23 @@ def ui_sidebar(cfg: AppConfig, index: VectorIndex):
     st.sidebar.write(
         f"Qdrant: {'✅' if hc['qdrant'] else '❌'} | Ollama: {'✅' if hc['ollama'] else '❌'}"
     )
+
+    # Models info
+    st.sidebar.subheader("Models")
+    model_name = (cfg.LLM_MODEL or "").strip()
+    st.sidebar.write(f"LLM model: {model_name}")
+    try:
+        if model_name and has_ollama_model(cfg, model_name):
+            st.sidebar.success("Ollama has this model")
+        else:
+            available = list_ollama_models(cfg)
+            st.sidebar.warning("Model not installed in Ollama yet")
+            if available:
+                st.sidebar.caption("Available: " + ", ".join(available))
+            else:
+                st.sidebar.info("Could not list Ollama models")
+    except Exception as e:
+        st.sidebar.info(f"Model check skipped: {e}")
 
 
 def process_and_index(cfg: AppConfig, index: VectorIndex, file_path: Path) -> Dict:

@@ -2,7 +2,7 @@ from typing import List, Dict
 
 from FlagEmbedding import FlagReranker
 
-from app.src.embeddings import get_embedder
+from embeddings import get_embedder
 
 # Lazy singleton reranker
 _reranker = None

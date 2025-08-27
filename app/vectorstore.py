@@ -5,7 +5,7 @@ from qdrant_client import QdrantClient
 from qdrant_client.http.models import VectorParams, Distance, Filter, FieldCondition, MatchValue, PointStruct
 import uuid
 
-from app.src.embeddings import embed_texts
+from embeddings import embed_texts
 
 
 @dataclass

@@ -6,7 +6,7 @@ from typing import List, Dict
 import requests
 import streamlit as st
 
-from app.src.config import AppConfig
+from config import AppConfig
 
 
 def ensure_dirs(cfg: AppConfig):
@@ -64,3 +64,25 @@ def healthcheck_services(cfg: AppConfig) -> Dict[str, bool]:
     except Exception:
         out["ollama"] = False
     return out
+
+
+def list_ollama_models(cfg: AppConfig) -> List[str]:
+    """Return a list of available Ollama model tags (names)."""
+    try:
+        r = requests.get(f"{cfg.OLLAMA_HOST}/api/tags", timeout=3)
+        r.raise_for_status()
+        data = r.json() or {}
+        models = data.get("models", [])
+        return [m.get("name") for m in models if isinstance(m, dict) and m.get("name")]
+    except Exception:
+        return []
+
+
+def has_ollama_model(cfg: AppConfig, name: str) -> bool:
+    """Return True if Ollama has a model locally (authoritative check via /api/show)."""
+    try:
+        payload = {"name": name}
+        r = requests.post(f"{cfg.OLLAMA_HOST}/api/show", json=payload, timeout=4)
+        return r.ok
+    except Exception:
+        return False
